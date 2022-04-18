@@ -1,0 +1,16 @@
+body{
+    font: 1em sans-serif;
+    background-color: aliceblue;
+}
+.maindiv{
+    background-color: rgb(223, 113, 113);
+    display: block;
+
+
+}
+.sidenav{
+    background-color: bisque;
+    
+  
+    display: inline-block;
+}
