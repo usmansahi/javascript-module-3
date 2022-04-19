@@ -2,6 +2,9 @@ body{
     font: 1em sans-serif;
     background-color: aliceblue;
 }
+#root{
+    display: flex;
+}
 .maindiv{
     background-color: rgb(223, 113, 113);
     display: block;
@@ -10,6 +13,7 @@ body{
 }
 .sidenav{
     background-color: bisque;
+    padding: 1em;
     
   
     display: inline-block;
