@@ -1,98 +1,132 @@
+            let sidebarElement;
+            let mainAreaElement;
+            let characterCardsElement ;
+            function renderCharacter(name ,status, species, image){
+                const cardCharacterElement = document.createElement('div');
+                cardCharacterElement.className = 'character-card';
+                mainAreaElement.appendChild(cardCharacterElement);
+                //Add image source
+                const characterImageElement = document.createElement('img');
+                characterImageElement.src = image;
 
-let mainAreaElement;
-function renderCharacter(name ,status, species, image){
-    const cardCharacterElement = document.createElement('div');
-    mainAreaElement.appendChild(cardCharacterElement);
-    //Add image source
-    const characterImageElement = document.createElement('img');
-    characterImageElement.src = image;
+                // Add name
+                const characterNameElement = document.createElement('div');
+                characterNameElement.innerText = name;
 
-    // Add name
-    const characterNameElement = document.createElement('div');
-    characterNameElement.innerText = name;
+                // Add specie and status
+                const characterSpecieStatusElement = document.createElement('div');
+                characterSpecieStatusElement.innerText = `${species} | ${status}`;
 
-    // Add specie and status
-    const characterSpecieStatusElement = document.createElement('div');
-    characterSpecieStatusElement.innerText = `${species} | ${status}`;
+                cardCharacterElement.appendChild(characterImageElement);
+                cardCharacterElement.appendChild(characterNameElement);
+                cardCharacterElement.appendChild(characterSpecieStatusElement);
 
-    cardCharacterElement.appendChild(characterImageElement);
-    cardCharacterElement.appendChild(characterNameElement);
-    cardCharacterElement.appendChild(characterSpecieStatusElement);
+            }
+            async function fetchcharacters(characterURLs) {
+                //map all urls to fetch peomises
+                const characterfetchPromises = characterURLs.map(characterURL => fetch(characterURL));
+                // transform the response into json objects
+                const resolvedFetchResponses = await Promise.all(characterfetchPromises);
+                // transform the response into json promises
+                const jsonpromises =resolvedFetchResponses.map(resolvedFetchResponses =>resolvedFetchResponses.json());
+                // transfor json promises into resolved json promise
+                const resolvedJsonPromises = await Promise.all(jsonpromises);
+                console.log(resolvedJsonPromises);
+                resolvedJsonPromises.forEach(characterJson =>renderCharacter(
+                    characterJson.name, characterJson.status, characterJson.species, characterJson.image));
 
-}
- async function fetchcharacters(characterURLs) {
-    //map all urls to fetch peomises
-    const characterfetchPromises = characterURLs.map(characterURL => fetch(characterURL));
-    // transform the response into json objects
-    const resolvedFetchResponses = await Promise.all(characterfetchPromises);
-     // transform the response into json promises
-     const jsonpromises =resolvedFetchResponses.map(resolvedFetchResponses =>resolvedFetchResponses.json());
-     // transfor json promises into resolved json promise
-     const resolvedJsonPromises = await Promise.all(jsonpromises);
-     console.log(resolvedJsonPromises);
-     resolvedJsonPromises.forEach(characterJson =>renderCharacter(
-        characterJson.name, characterJson.status, characterJson.species, characterJson.image));
+            }
+            // updatecontainer
+            function updatemainconatainer(name,date,episodecode,characterURLs){
+                mainAreaElement =document.querySelector('.maindiv');
+                mainAreaElement.innerHTML='';
+                characterCardsElement.innerHTML = '';
+                
+                const title = document.createElement('h2');
+                title.innerText = name;
+                const releseDateAndCode =document.createElement('h3');
+                releseDateAndCode.innerText = `${date} | ${episodecode}`;
+                mainAreaElement.appendChild(title);
+                mainAreaElement.appendChild(releseDateAndCode);
+                mainAreaElement.appendChild(characterCardsElement);
+                fetchcharacters(characterURLs);
+            }
+            
+            function renderNextEpisodButton(nextUrl){
+                // rendring button
+                if(!nextUrl){
+                    return ;
+                }
+                const nextbutton =document.createElement('button');
+                nextbutton.className ='next-list-button';
+                nextbutton.innerText ='Next Episode';
+                nextbutton.addEventListener('click', _event =>{
+                    console.log(nextUrl);
+                    fetch(nextUrl)
+                    .then(response =>response.json())
+                    .then(json => {
+                        renderoflist(json.results, json.info.next)})
+                
+                }); 
+                sidebarElement.appendChild( nextbutton);
 
-}
-// updatecontainer
-function updatemainconatainer(name,date,episodecode,characterURLs){
-    const mainareaElement =document.querySelector('.maindiv');
-    mainareaElement.innerHTML='';
-    const title = document.createElement('h2');
-    title.innerText = name;
-    const releseDateAndCode =document.createElement('p');
-    releseDateAndCode.innerText = `${date} | ${episodecode}`;
-    mainareaElement.appendChild(title);
-    mainareaElement.appendChild(releseDateAndCode);
+            }
+            function renderoflist(episodes,nextUrl){
+                //clean button inside sidebar
+                document.querySelectorAll(".next-list-button").forEach
+                (buttonElement =>sidebarElement.removeChild(buttonElement));
+                    episodes.forEach(episode =>{
+                    const titleElement =document.createElement('p');
+                    titleElement.innerText =`episode ${episode.id}`;
+                    sidebarElement.appendChild(titleElement);
+                    titleElement.addEventListener("click" , _event =>{
+                    updatemainconatainer(episode.name, episode.air_date, episode.episode, episode.characters);
+                    })  
+                })
+            renderNextEpisodButton(nextUrl);
 
-    fetchcharacters(characterURLs);
-}
+            }
 
-const root =document.querySelector('#root');
-//maincontainer
-function maincontainer (){
-    const maincontainerpage =document.createElement('div');
-    maincontainerpage.className ="maindiv";
-    maincontainerpage.innerText="this is mainarea";
-    const heading =document.createElement('p');
-    maincontainerpage.appendChild(heading);
-    root.appendChild(maincontainerpage);
-   
-}
-//create sidebar nav
-function sidebar(){   
-fetch('https://rickandmortyapi.com/api/episode')
-.then(result =>{
-    return result.json()   
-})
-.then(json =>{
-    console.log(json["results"])
-    const sidebarnavigation = document.createElement('div');
-    sidebarnavigation.className="sidenav";
-    root.appendChild(sidebarnavigation);
+            //create sidebar nav
+            function sidebar(){   
+                sidebarElement = document.createElement('div');
+                sidebarElement.id="sidenav";
+                document.querySelector('#root').appendChild(sidebarElement);
+            fetch('https://rickandmortyapi.com/api/episode')
+            .then(result =>{
+                return result.json()   
+            })
+            .then(json =>{
+            renderoflist(json.results, json.info.next);
+                //update maincontainer with first episode
+                const firstEpisode = json.results[0];
+                updatemainconatainer(firstEpisode.name,firstEpisode.air_date,firstEpisode.episode, firstEpisode.characters); 
 
-    json.results.forEach(episode => {
-        const titleepisode =document.createElement('p');
-        titleepisode.innerText =`episode ${episode.id}`;
-        sidebarnavigation.appendChild(titleepisode);
-        titleepisode.addEventListener("click" , _event =>{
-           updatemainconatainer(episode.name,episode.air_date,episode.episode, episode.characters);
-        })   
-    }); 
-    const firstEpisode = json.results[0];
-    updatemainconatainer(firstEpisode.name,firstEpisode.air_datefirstEpisode.episode, firstEpisode.characters); 
+            })
 
-})
 
-}
-sidebar();
-maincontainer();
-// promise structure
-const promiseFetch = new Promise((resolve, reject)=>{
-    // getting information by using url
-    const response = 200;
-    if (response !== 200){
-        reject(`Something went wrong, status code is not 200, it is: ${response}`);
-    }
-    resolve(response);
-})
+            }
+            //maincontainer
+            function maincontainer (){
+                const mainAreaElement =document.createElement('div');
+                mainAreaElement.className ="maindiv";
+                characterCardsElement=document.createElement('div');
+                characterCardsElement.id= 'character-cards';
+                mainAreaElement.appendChild(characterCardsElement);
+                // const heading =document.createElement('p');
+                // maincontainerpage.appendChild(heading);
+                document.querySelector('#root').appendChild(mainAreaElement);
+                
+            
+            }
+            sidebar();
+            maincontainer();
+            // promise structure
+            const promiseFetch = new Promise((resolve, reject)=>{
+                // getting information by using url
+                const response = 200;
+                if (response !== 200){
+                    reject(`Something went wrong, status code is not 200, it is: ${response}`);
+                }
+                resolve(response);
+            })

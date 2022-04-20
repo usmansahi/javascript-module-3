@@ -7,14 +7,20 @@ body{
 }
 .maindiv{
     background-color: rgb(223, 113, 113);
-    display: block;
-
-
-}
-.sidenav{
-    background-color: bisque;
     padding: 1em;
-    
-  
-    display: inline-block;
+   
+}
+#sidenav{
+    background-color: bisque;
+    padding: 1em; 
+}
+#character-cards{
+    margin: 0.5em;
+    width: 184px;
+}
+#character-cards img{
+    width: 50%;
+}
+#character-cards div{
+    margin: 0.5em;
 }
