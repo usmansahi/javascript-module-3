@@ -1,6 +1,19 @@
             let sidebarElement;
             let mainAreaElement;
             let characterCardsElement ;
+            // adding location and name,type,dimension
+            function locationofCharacter(name,type,dimension){
+                characterLoction =document.querySelector('.character-card');
+                characterLoction.addEventListener('click',_event =>{
+                    console.log('am here for location')
+                })
+                mainAreaElement.appendChild(characterLoction);
+
+                // adding location
+                
+
+
+            }
             function renderCharacter(name ,status, species, image){
                 const cardCharacterElement = document.createElement('div');
                 cardCharacterElement.className = 'character-card';
@@ -50,6 +63,7 @@
                 mainAreaElement.appendChild(releseDateAndCode);
                 mainAreaElement.appendChild(characterCardsElement);
                 fetchcharacters(characterURLs);
+                characterLoction();
             }
             
             function renderNextEpisodButton(nextUrl){
@@ -113,8 +127,6 @@
                 characterCardsElement=document.createElement('div');
                 characterCardsElement.id= 'character-cards';
                 mainAreaElement.appendChild(characterCardsElement);
-                // const heading =document.createElement('p');
-                // maincontainerpage.appendChild(heading);
                 document.querySelector('#root').appendChild(mainAreaElement);
                 
             
